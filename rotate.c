@@ -18,19 +18,18 @@ int main(int argc, char *argv[]){
 			}	
 		//read in the outputfile. 
 			else if(! strcmp(argv[i], "-o")) {
-				outputfile = argv[i + 1];
-				i += 2;
+				outputfile = argv[i+1];
+				i+= 2;
 			}
 		//read the degrees (theta) to rotate the image (float), 
 			else if(! strcmp(argv[i], "-r")) {
-				theta = atof(argv[i + 1]);
-				i += 2;
+				theta = atof(argv[i+1]);
+				i+= 2;
 			}
 		//read the arrayType
 			else if(! strcmp(argv[i], "-t")) {
-				arrayType = atoi(argv[i + 1]);
-				//arrayType = 2;
-				i += 2;
+				arrayType = atoi(argv[i+1]);
+				i+= 2;
 			}
 			
 			else{
