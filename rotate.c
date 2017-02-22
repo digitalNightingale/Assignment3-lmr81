@@ -28,7 +28,7 @@ int main(int argc, char *argv[]){
 			}
 		//read the arrayType
 			else if(! strcmp(argv[i], "-t")) {
-				arrayType = atoi(argv[i+1]);
+				arrayType = atof(argv[i+1]);
 				i+= 2;
 			}
 			
