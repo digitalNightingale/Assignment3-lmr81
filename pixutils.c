@@ -12,32 +12,38 @@ static pixMap* pixMap_init(unsigned char arrayType){
 	p->image = 0;
 	p->imageWidth = 0;
 	p->imageHeight = 0;
-	
+	p->arrayType = arrayType;
 	p->pixArray_arrays = 0;
 	p->pixArray_blocks = 0;
 	p->pixArray_overlay = 0;
-	p->arrayType = arrayType;
 	return p;
 }
 	
 void pixMap_destroy (pixMap **p){
-    //free all mallocs and put a zero pointer in *p
+    //free all mallocs and put a zero pointer in *p 
 	if((*p)->image) {
 		free ((*p)->image);
+		 (*p)->image=0;
 	}
 	if((*p)->pixArray_arrays) {
 		free((*p)->pixArray_arrays);
 		if(*p) free(*p);
-	} else if ((*p)->pixArray_blocks) {
+		//(*p)->pixArray_arrays=0;
+	} 
+	else if((*p)->pixArray_blocks) {
 		for(int i = 0; i < (*p)->imageHeight; i++)
 			if((*p)->pixArray_blocks[i]) free((*p)->pixArray_blocks[i]);
 		free((*p)->pixArray_blocks);
 		if (*p) free(*p);
-	} else if ((*p)->pixArray_overlay) {
+		//(*p)->pixArray_blocks=0;
+	} 
+	else if((*p)->pixArray_overlay) {
 		free((*p)->pixArray_overlay);
 		if(*p) free(*p);
+		//(*p)->pixArray_overlay=0;
 	}
 	*p = 0;
+	//if(*p) free(*p);
 }
 	
 pixMap *pixMap_read(char *filename,unsigned char arrayType){

@@ -28,12 +28,12 @@ int main(int argc, char *argv[]){
 			}
 		//read the arrayType
 			else if(! strcmp(argv[i], "-t")) {
-				arrayType = atof(argv[i+1]);
+				arrayType = atoi(argv[i+1]);
 				i+= 2;
 			}
 			
 			else{
-				fprintf(stderr,"usage: frame -i <inputfile> -o <outputfile> -r <theta> -t <0-2>");
+				fprintf(stderr,"usage: rotate -i <inputfile> -o <outputfile> -r <theta> -t <0-2>");
 				exit(0);
 			}	
 		}		
