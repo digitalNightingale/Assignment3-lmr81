@@ -110,8 +110,8 @@ int pixMap_write(pixMap *p,char *filename){
 	 if (p->arrayType == 0) {
 		 //have to copy each row of the array into the corresponding row of the image
 		 for (int i = 0; i < p->imageHeight; i++) {
-		 memcpy((p->image + (i * sizeof(rgba[p->imageWidth]))), p->pixArray_arrays[i], sizeof(rgba[p->imageWidth]));
-		 //memcpy(&p->image[i * p->imageWidth * sizeof(rgba)], &p->pixArray_arrays[i], p->imageWidth * sizeof(rgba));
+			 memcpy((p->image + (i * sizeof(rgba[p->imageWidth]))), p->pixArray_arrays[i], sizeof(rgba[p->imageWidth]));
+			 //memcpy(&p->image[i * p->imageWidth * sizeof(rgba)], &p->pixArray_arrays[i], p->imageWidth * sizeof(rgba));
 		}
 	}
 		else if (p->arrayType == 1) {
