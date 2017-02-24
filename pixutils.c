@@ -56,6 +56,10 @@ pixMap *pixMap_read(char *filename,unsigned char arrayType) {
 	}
  //allocate the 2-D rgba arrays
 	if (arrayType == 0) {
+		if(p->imageWidth > MAXWIDTH) {
+			fprintf(stderr,"There was an error reading the image! \nYour image width was %d. It cannot exceed the maxium witdth of %d\n", p->imageWidth, MAXWIDTH);
+			return 0;
+		}
 		//can only allocate for the number of rows - each row will be an array of MAXWIDTH
 		p->pixArray_arrays = malloc(p->imageHeight * sizeof(rgba[MAXWIDTH]));
 			//copy each row of the image into each row
