@@ -18,9 +18,9 @@ static pixMap* pixMap_init(unsigned char arrayType){
 	p->pixArray_overlay = 0;
 	return p;
 }
-	
+
 void pixMap_destroy (pixMap **p){
-    //free all mallocs and put a zero pointer in *p 
+    //free all mallocs and put a zero pointer in *p
 	if((*p)->image) {
 		free ((*p)->image);
 		 (*p)->image=0;
@@ -29,14 +29,14 @@ void pixMap_destroy (pixMap **p){
 		free((*p)->pixArray_arrays);
 		if(*p) free(*p);
 		//(*p)->pixArray_arrays=0;
-	} 
+	}
 	else if((*p)->pixArray_blocks) {
 		for(int i = 0; i < (*p)->imageHeight; i++)
 			if((*p)->pixArray_blocks[i]) free((*p)->pixArray_blocks[i]);
 		free((*p)->pixArray_blocks);
 		if (*p) free(*p);
 		//(*p)->pixArray_blocks=0;
-	} 
+	}
 	else if((*p)->pixArray_overlay) {
 		free((*p)->pixArray_overlay);
 		if(*p) free(*p);
@@ -45,7 +45,7 @@ void pixMap_destroy (pixMap **p){
 	*p = 0;
 	//if(*p) free(*p);
 }
-	
+
 pixMap *pixMap_read(char *filename,unsigned char arrayType){
  //library call reads in the image into p->image and sets the width and height
 	pixMap *p=pixMap_init(arrayType);
@@ -67,16 +67,16 @@ pixMap *pixMap_read(char *filename,unsigned char arrayType){
 					p->pixArray_arrays[i][j].b = p->image[n++];
 					p->pixArray_arrays[i][j].a = p->image[n++];
 				}
-			}	
+			}
 	}
-		
+
 	else if (arrayType == 1) {
-		//allocate a block of memory (dynamic array of p->imageHeight) to store the pointers	
-		p->pixArray_blocks = malloc(p->imageHeight * sizeof(rgba*));		
+		//allocate a block of memory (dynamic array of p->imageHeight) to store the pointers
+		p->pixArray_blocks = malloc(p->imageHeight * sizeof(rgba*));
 			//use a loop allocate a block of memory for each row
 			for(int i = 0; i < p->imageHeight; i++) {
 				p->pixArray_blocks[i] = malloc(p->imageWidth * sizeof(rgba));
-			}			
+			}
 			//copy each row of the image into the newly allocated block
 			int n = 0;
 			for(int i = 0; i < p->imageHeight; i++) {
@@ -86,87 +86,80 @@ pixMap *pixMap_read(char *filename,unsigned char arrayType){
 					p->pixArray_blocks[i][j].b = p->image[n++];
 					p->pixArray_blocks[i][j].a = p->image[n++];
 				}
-			} 
+			}
 	}
-			
+
 	else if (arrayType == 2) {
-		//allocate a block of memory (dynamic array of p->imageHeight) to store the pointers		
+		//allocate a block of memory (dynamic array of p->imageHeight) to store the pointers
 		p->pixArray_overlay = malloc(p->imageHeight * sizeof(rgba*));
 			//set the first pointer to the start of p->image
 			p->pixArray_overlay[0] = (rgba*)p->image;
 			//each subsequent pointer is the previous pointer + p->imageWidth
 			for (int i = 1; i < p->imageHeight; i++) {
 				p->pixArray_overlay[i] = p->pixArray_overlay[i - 1] + p->imageWidth;
-			} 		
+			}
 	}
 	else {
 		return 0;
-	}				
+	}
 	return p;
 }
 int pixMap_write(pixMap *p,char *filename){
 	int error=0;
 	//for arrayType 0 and arrayType 1 have to write out a controws  to the image using memcpy
-	 if (p->arrayType==0){
+	 if (p->arrayType == 0){
 		 //have to copy each row of the array into the corresponding row of the image
-		 int n = 0; 
 		 for (int i = 0; i < p->imageHeight; i++){
-			for (int j = 0; j < p->imageWidth; j++){
-				p->image[n++] = p->pixArray_arrays[i][j].r;
-				p->image[n++] = p->pixArray_arrays[i][j].g;
-				p->image[n++] =	p->pixArray_arrays[i][j].b;
-				p->image[n++] =	p->pixArray_arrays[i][j].a;
-			}
-		}	
-	 }	
-		else if (p->arrayType ==1){
+		 memcpy(&p->image[i * p->imageWidth * sizeof(rgba)], &p->pixArray_arrays[i], p->imageWidth * sizeof(rgba));
+		}
+	}
+		else if (p->arrayType == 1){
 		//have to copy each row of the array into the corresponding row of the image
-		int n = 0; 
-		 for (int i = 0; i < p->imageHeight; i++){
+		int n = 0;
+		for(int i = 0; i < p->imageHeight; i++){
 			for (int j = 0; j < p->imageWidth; j++){
 				p->image[n++] = p->pixArray_blocks[i][j].r;
 				p->image[n++] = p->pixArray_blocks[i][j].g;
 				p->image[n++] =	p->pixArray_blocks[i][j].b;
 				p->image[n++] =	p->pixArray_blocks[i][j].a;
-			}
-		}	
-				
+		 	}
+		 }
 	 }
- //library call to write the image out 
+ //library call to write the image out
  if(lodepng_encode32_file(filename, p->image, p->imageWidth, p->imageHeight)){
   fprintf(stderr,"error %u: %s\n", error, lodepng_error_text(error));
   return 1;
 	}
 	return 0;
-}	 
+}
 
 int pixMap_rotate(pixMap *p,float theta){
-	
+
 	pixMap *oldPixMap=pixMap_copy(p);
 	if(!oldPixMap)return 1;
-	
+
 	const float ox=p->imageWidth/2.0f;
 	const float oy=p->imageHeight/2.0f;
 	const float s=sin(degreesToRadians(-theta));
 	const float c=cos(degreesToRadians(-theta));
-	
+
 	for(int y=0;y<p->imageHeight;y++){
-		for(int x=0;x<p->imageWidth;x++){ 
+		for(int x=0;x<p->imageWidth;x++){
 			float rotx = c*(x-ox) - s * (oy-y) + ox;
 			float roty = -(s*(x-ox) + c * (oy-y) - oy);
 			int rotj=rotx+.5;
-			int roti=roty+.5; 
+			int roti=roty+.5;
 		 if(roti >=0 && roti < oldPixMap->imageHeight && rotj >=0 && rotj < oldPixMap->imageWidth){
 			 if(p->arrayType==0) memcpy(p->pixArray_arrays[y]+x,oldPixMap->pixArray_arrays[roti]+rotj,sizeof(rgba));
 			 else if(p->arrayType==1) memcpy(p->pixArray_blocks[y]+x,oldPixMap->pixArray_blocks[roti]+rotj,sizeof(rgba));
-			 else if(p->arrayType==2) memcpy(p->pixArray_overlay[y]+x,oldPixMap->pixArray_overlay[roti]+rotj,sizeof(rgba));			 
+			 else if(p->arrayType==2) memcpy(p->pixArray_overlay[y]+x,oldPixMap->pixArray_overlay[roti]+rotj,sizeof(rgba));
 			}
 			else{
 				if(p->arrayType==0) memset(p->pixArray_arrays[y]+x,0,sizeof(rgba));
 				else if(p->arrayType==1) memset(p->pixArray_blocks[y]+x,0,sizeof(rgba));
-				else if(p->arrayType==2) memset(p->pixArray_overlay[y]+x,0,sizeof(rgba));		
-			}		
-		}	
+				else if(p->arrayType==2) memset(p->pixArray_overlay[y]+x,0,sizeof(rgba));
+			}
+		}
 	}
  pixMap_destroy(&oldPixMap);
  return 0;
@@ -187,7 +180,7 @@ pixMap *pixMap_copy(pixMap *p){
 		new->pixArray_arrays = malloc(p->imageHeight * sizeof(rgba[MAXWIDTH]));
 		memcpy(new->pixArray_arrays, p->pixArray_arrays, p->imageHeight * sizeof(rgba[MAXWIDTH]));
 
-	}	
+	}
  else if (new->arrayType == 1){
 		//insert code
 		new->pixArray_blocks = malloc(p->imageHeight * sizeof(rgba*));
@@ -199,11 +192,11 @@ pixMap *pixMap_copy(pixMap *p){
 	else if (new->arrayType == 2){
 		//insert code
 		new->pixArray_overlay = malloc(p->imageHeight * sizeof(rgba*));
-		new->pixArray_overlay[0]=(rgba*)new->image;	
-		for (int i = 1; i < p->imageHeight; i++) 
+		new->pixArray_overlay[0]=(rgba*)new->image;
+		for (int i = 1; i < p->imageHeight; i++)
 			new->pixArray_overlay[i] = new->pixArray_overlay[i - 1] + p->imageWidth;
 		memcpy(new->image, p->image, p->imageHeight * p->imageWidth * sizeof(rgba));
 
 	}
 	return new;
-}	
+}
